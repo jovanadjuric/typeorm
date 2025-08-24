@@ -47,7 +47,7 @@ describe("github issues > #4753 MySQL Replication Config broken", () => {
         })
 
         dataSources.push(dataSource)
-        await dataSource.connect()
+        await dataSource.initialize()
         dataSource.isInitialized.should.be.true
     })
 })

@@ -108,7 +108,7 @@ describe("github issues > #6115 Down migration for enums with defaults are wrong
                 expect(defaultOperator4!.default).to.equal(`'eq'`)
 
                 await queryRunner.release()
-                await dataSource.close()
+                await dataSource.destroy()
             }),
         ))
 })

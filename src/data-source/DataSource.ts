@@ -1,11 +1,17 @@
-import { Driver } from "../driver/Driver"
-import { registerQueryBuilders } from "../query-builder"
-import { Repository } from "../repository/Repository"
-import { EntitySubscriberInterface } from "../subscriber/EntitySubscriberInterface"
+import { QueryResultCache } from "../cache/QueryResultCache"
+import { QueryResultCacheFactory } from "../cache/QueryResultCacheFactory"
 import { EntityTarget } from "../common/EntityTarget"
-import { ObjectType } from "../common/ObjectType"
+import { ObjectLiteral } from "../common/ObjectLiteral"
+import { ConnectionMetadataBuilder } from "../connection/ConnectionMetadataBuilder"
+import { Driver } from "../driver/Driver"
+import { DriverFactory } from "../driver/DriverFactory"
+import { DriverUtils } from "../driver/DriverUtils"
+import { IsolationLevel } from "../driver/types/IsolationLevel"
+import { ReplicationMode } from "../driver/types/ReplicationMode"
 import { EntityManager } from "../entity-manager/EntityManager"
-import { DefaultNamingStrategy } from "../naming-strategy/DefaultNamingStrategy"
+import { EntityManagerFactory } from "../entity-manager/EntityManagerFactory"
+import { MongoEntityManager } from "../entity-manager/MongoEntityManager"
+import { SqljsEntityManager } from "../entity-manager/SqljsEntityManager"
 import {
     CannotConnectAlreadyConnectedError,
     CannotExecuteNotConnectedError,
@@ -13,35 +19,28 @@ import {
     QueryRunnerProviderAlreadyReleasedError,
     TypeORMError,
 } from "../error"
-import { TreeRepository } from "../repository/TreeRepository"
-import { NamingStrategyInterface } from "../naming-strategy/NamingStrategyInterface"
-import { EntityMetadata } from "../metadata/EntityMetadata"
 import { Logger } from "../logger/Logger"
-import { MigrationInterface } from "../migration/MigrationInterface"
-import { MigrationExecutor } from "../migration/MigrationExecutor"
-import { Migration } from "../migration/Migration"
-import { MongoRepository } from "../repository/MongoRepository"
-import { MongoEntityManager } from "../entity-manager/MongoEntityManager"
-import { EntityMetadataValidator } from "../metadata-builder/EntityMetadataValidator"
-import { DataSourceOptions } from "./DataSourceOptions"
-import { EntityManagerFactory } from "../entity-manager/EntityManagerFactory"
-import { DriverFactory } from "../driver/DriverFactory"
-import { ConnectionMetadataBuilder } from "../connection/ConnectionMetadataBuilder"
-import { QueryRunner } from "../query-runner/QueryRunner"
-import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder"
 import { LoggerFactory } from "../logger/LoggerFactory"
-import { QueryResultCacheFactory } from "../cache/QueryResultCacheFactory"
-import { QueryResultCache } from "../cache/QueryResultCache"
-import { SqljsEntityManager } from "../entity-manager/SqljsEntityManager"
-import { RelationLoader } from "../query-builder/RelationLoader"
-import { ObjectUtils } from "../util/ObjectUtils"
-import { IsolationLevel } from "../driver/types/IsolationLevel"
-import { ReplicationMode } from "../driver/types/ReplicationMode"
+import { EntityMetadataValidator } from "../metadata-builder/EntityMetadataValidator"
+import { EntityMetadata } from "../metadata/EntityMetadata"
+import { Migration } from "../migration/Migration"
+import { MigrationExecutor } from "../migration/MigrationExecutor"
+import { MigrationInterface } from "../migration/MigrationInterface"
+import { DefaultNamingStrategy } from "../naming-strategy/DefaultNamingStrategy"
+import { NamingStrategyInterface } from "../naming-strategy/NamingStrategyInterface"
+import { registerQueryBuilders } from "../query-builder"
 import { RelationIdLoader } from "../query-builder/RelationIdLoader"
-import { DriverUtils } from "../driver/DriverUtils"
+import { RelationLoader } from "../query-builder/RelationLoader"
+import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder"
+import { QueryRunner } from "../query-runner/QueryRunner"
+import { MongoRepository } from "../repository/MongoRepository"
+import { Repository } from "../repository/Repository"
+import { TreeRepository } from "../repository/TreeRepository"
+import { EntitySubscriberInterface } from "../subscriber/EntitySubscriberInterface"
 import { InstanceChecker } from "../util/InstanceChecker"
-import { ObjectLiteral } from "../common/ObjectLiteral"
+import { ObjectUtils } from "../util/ObjectUtils"
 import { buildSqlTag } from "../util/SqlTagUtils"
+import { DataSourceOptions } from "./DataSourceOptions"
 
 registerQueryBuilders()
 
@@ -50,8 +49,8 @@ registerQueryBuilders()
  * You can have multiple data sources connected (with multiple connections in it),
  * connected to multiple databases in your application.
  *
- * Before, it was called `Connection`, but now `Connection` is deprecated
- * because `Connection` isn't the best name for what it's actually is.
+ * Before, it was called `Connection`, which was deprecated and later removed
+ * because the name didn’t accurately describe what it actually is.
  */
 export class DataSource {
     readonly "@instanceof" = Symbol.for("DataSource")
@@ -155,15 +154,6 @@ export class DataSource {
     // -------------------------------------------------------------------------
     // Public Accessors
     // -------------------------------------------------------------------------
-
-    /**
-     Indicates if DataSource is initialized or not.
-     *
-     * @deprecated use .isInitialized instead
-     */
-    get isConnected() {
-        return this.isInitialized
-    }
 
     /**
      * Gets the mongodb entity manager that allows to perform mongodb-specific repository operations
@@ -278,18 +268,6 @@ export class DataSource {
     }
 
     /**
-     * Performs connection to the database.
-     * This method should be called once on application bootstrap.
-     * This method not necessarily creates database connection (depend on database type),
-     * but it also can setup a connection pool with database to use.
-     *
-     * @deprecated use .initialize method instead
-     */
-    async connect(): Promise<this> {
-        return this.initialize()
-    }
-
-    /**
      * Closes connection with the database.
      * Once connection is closed, you cannot use repositories or perform any operations except opening connection again.
      */
@@ -302,16 +280,6 @@ export class DataSource {
         if (this.queryResultCache) await this.queryResultCache.disconnect()
 
         ObjectUtils.assign(this, { isInitialized: false })
-    }
-
-    /**
-     * Closes connection with the database.
-     * Once connection is closed, you cannot use repositories or perform any operations except opening connection again.
-     *
-     * @deprecated use .destroy method instead
-     */
-    async close(): Promise<void> {
-        return this.destroy()
     }
 
     /**
@@ -472,15 +440,6 @@ export class DataSource {
             )
 
         return this.manager.getRepository(target) as any
-    }
-
-    /**
-     * Gets custom entity repository marked with @EntityRepository decorator.
-     *
-     * @deprecated use Repository.extend function to create a custom repository
-     */
-    getCustomRepository<T>(customRepository: ObjectType<T>): T {
-        return this.manager.getCustomRepository(customRepository)
     }
 
     /**
