@@ -33,7 +33,7 @@ describe("query runner > drop column", () => {
                     versionColumn!.should.be.exist
 
                     // better-sqlite3 seems not able to create a check constraint on a non-existing column
-                    if (connection.name === "better-sqlite3") {
+                    if (connection.options.type === "better-sqlite3") {
                         await queryRunner.dropCheckConstraints(
                             table!,
                             table!.checks,
@@ -98,7 +98,7 @@ describe("query runner > drop column", () => {
                     versionColumn!.should.be.exist
 
                     // better-sqlite3 seems not able to create a check constraint on a non-existing column
-                    if (connection.name === "better-sqlite3") {
+                    if (connection.options.type === "better-sqlite3") {
                         await queryRunner.dropCheckConstraints(
                             table!,
                             table!.checks,

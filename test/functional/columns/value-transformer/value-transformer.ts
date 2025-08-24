@@ -70,7 +70,7 @@ describe("columns > value-transformer functionality", () => {
         Promise.all(
             connections.map(async (connection) => {
                 const userRepository = connection.getRepository(User)
-                const email = `${connection.name}@JOHN.doe`
+                const email = `${connection.options.type}@JOHN.doe`
                 const user = new User()
                 user.email = email
 
@@ -85,7 +85,7 @@ describe("columns > value-transformer functionality", () => {
         Promise.all(
             connections.map(async (connection) => {
                 const categoryRepository = connection.getRepository(Category)
-                const description = `  ${connection.name}-DESCRIPTION   `
+                const description = `  ${connection.options.type}-DESCRIPTION   `
                 const category = new Category()
                 category.description = description
 
@@ -104,7 +104,7 @@ describe("columns > value-transformer functionality", () => {
         Promise.all(
             connections.map(async (connection) => {
                 const viewRepository = connection.getRepository(View)
-                const title = `${connection.name}`
+                const title = `${connection.options.type}`
                 const view = new View()
                 view.title = title
 

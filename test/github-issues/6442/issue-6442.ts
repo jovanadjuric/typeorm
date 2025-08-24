@@ -30,7 +30,6 @@ describe("github issues > #6442 JoinTable does not respect inverseJoinColumns re
                 const options = setupSingleTestingConnection(
                     connection.options.type,
                     {
-                        name: `${connection.name}-v2`,
                         entities: [__dirname + "/entity/v2/*{.js,.ts}"],
                         dropSchema: false,
                         schemaCreate: false,

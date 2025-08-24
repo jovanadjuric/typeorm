@@ -87,7 +87,7 @@ describe("multi-database > basic-functionality", () => {
                 enabledDrivers: ["sqlite"],
             })
             connections = connections.filter(
-                (connection) => connection.name === "sqlite",
+                (connection) => connection.options.type === "sqlite",
             )
         })
         beforeEach(() => reloadTestingDatabases(connections))

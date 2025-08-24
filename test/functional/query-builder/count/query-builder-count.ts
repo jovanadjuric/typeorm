@@ -65,7 +65,7 @@ describe("query builder > count", () => {
                 await repo.save({ a: "BBB", b: "B" })
 
                 const count = await repo.count()
-                expect(count).to.be.equal(6, connection.name)
+                expect(count).to.be.equal(6)
             }),
         ))
 
@@ -113,7 +113,7 @@ describe("query builder > count", () => {
                     .leftJoin(AmbigiousPrimaryKey, "self", "self.a = main.a")
                     .getCount()
 
-                expect(count).to.be.equal(6, connection.name)
+                expect(count).to.be.equal(6)
             }),
         ))
 })

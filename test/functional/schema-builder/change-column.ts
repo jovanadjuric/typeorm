@@ -401,17 +401,11 @@ describe("schema builder > change column", () => {
                 const teacherTableA = await queryRunnerA.getTable("teacher")
                 await queryRunnerA.release()
 
-                expect(persistedTagColumnA.comment).to.be.equal(
-                    undefined,
-                    connection.name,
-                )
-                expect(persistedTagColumnA.isNullable).to.be.equal(
-                    true,
-                    connection.name,
-                )
+                expect(persistedTagColumnA.comment).to.be.equal(undefined)
+                expect(persistedTagColumnA.isNullable).to.be.equal(true)
                 expect(
                     teacherTableA!.findColumnByName("id")!.comment,
-                ).to.be.equal("The Teacher's Key", connection.name)
+                ).to.be.equal("The Teacher's Key")
 
                 // revert changes
                 tagColumn.comment = "Tag"

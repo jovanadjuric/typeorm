@@ -4,12 +4,12 @@ import {
     closeTestingConnections,
     reloadTestingDatabases,
 } from "../../utils/test-utils"
-import { Connection } from "../../../src/connection/Connection"
 import { expect } from "chai"
 import { User } from "../8796/entity/User"
+import { DataSource } from "../../../src"
 
 describe("github issues > #8796 New find select object api should support false values as expected", () => {
-    let connections: Connection[]
+    let connections: DataSource[]
 
     const user: User = {
         id: 1,

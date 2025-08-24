@@ -5,7 +5,6 @@ import { ObjectLiteral } from "../../common/ObjectLiteral"
 import { ColumnMetadata } from "../../metadata/ColumnMetadata"
 import { DateUtils } from "../../util/DateUtils"
 import { PlatformTools } from "../../platform/PlatformTools"
-import { Connection } from "../../connection/Connection"
 import { RdbmsSchemaBuilder } from "../../schema-builder/RdbmsSchemaBuilder"
 import { SpannerConnectionOptions } from "./SpannerConnectionOptions"
 import { MappedColumnTypes } from "../types/MappedColumnTypes"
@@ -21,6 +20,7 @@ import { View } from "../../schema-builder/view/View"
 import { TableForeignKey } from "../../schema-builder/table/TableForeignKey"
 import { CteCapabilities } from "../types/CteCapabilities"
 import { UpsertType } from "../types/UpsertType"
+import { DataSource } from "../../data-source"
 
 /**
  * Organizes communication with Spanner DBMS.
@@ -33,7 +33,7 @@ export class SpannerDriver implements Driver {
     /**
      * Connection used by driver.
      */
-    connection: Connection
+    connection: DataSource
 
     /**
      * Cloud Spanner underlying library.
@@ -182,7 +182,7 @@ export class SpannerDriver implements Driver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(connection: Connection) {
+    constructor(connection: DataSource) {
         this.connection = connection
         this.options = connection.options as SpannerConnectionOptions
         this.isReplicated = this.options.replication ? true : false
